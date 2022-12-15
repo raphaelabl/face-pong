@@ -18,15 +18,15 @@ class Vec:
         self.dx = dx
         self.dy = dy
 
+width = 640
+height = 480
 
 ball = Vec(100, 100, 10, 10)
-ball.x = 100
-ball.y = 100
+ball.x = width/2
+ball.y = height/2
 ball.dy = 10
 ball.dx = -10
 
-width = 640
-height = 480
 
 while True:
     ret, img = cap.read()
@@ -35,27 +35,24 @@ while True:
 
     faces = face_cascade.detectMultiScale(gray_img, 1.25, 4)
 
-    if len(faces) == 2:
-        ball.x += ball.dx
-        ball.y += ball.dy
+    ball.x += ball.dx
+    ball.y += ball.dy
 
-        if ball.y > height - 5:
-            ball.y = height - 5
-            ball.dy *= -1
+    if ball.y > height - 5:
+        ball.y = height - 5
+        ball.dy *= -1
 
-        if ball.y < 0:
-            ball.y = 0
-            ball.dy *= -1
+    if ball.y < 0:
+        ball.y = 0
+        ball.dy *= -1
 
-        if ball.x > width - 5:
-            ball.x = width - 5
-            ball.dx *= -1
+    if ball.x > width - 5:
+        ball.x = width - 5
+        ball.dx *= -1
 
-        if ball.x < 0:
-            ball.x = 0
-            ball.dx *= -1
-
-    cv2.circle(img, (ball.x, ball.y), 5, (0, 0, 255), 1)
+    if ball.x < 0:
+        ball.x = 0
+        ball.dx *= -1
 
     faceCords = []
 
@@ -66,10 +63,18 @@ while True:
 
     for index, vec in enumerate(faceCords[0:2], start=0):
         cv2.rectangle(img, (100 + (index * 400), vec.y), (100 + (index * 400) + 30, vec.y + 100), (300, 300, 0), 1)
+        delX = abs(ball.x - (100 + (index * 400) + (30 * (1 - index)))) * (ball.dx / 10)
 
-        if (100 + (index * 400)) < ball.x < (100 + (index * 400) + 30) and vec.y < ball.y < vec.y + vec.dy:
-            ball.x = vec.x
+        if ball.x == (100 + (index * 400) + ((1 - index) * 30)) and vec.y <= ball.y <= vec.y + 100:
+            print("bounce: ", ball.dx)
             ball.dx *= -1
+        elif (100 + (index * 400)) <= ball.x + ball.dx <= (
+                100 + (index * 400) + ((1 - index) * 30)) and vec.y <= ball.y + ball.dy <= vec.y + 100:
+            ball.y = int(delX + ball.y)
+            ball.x = 100 +(index * 400)+ ((1 - index) * 30) - ball.dx
+            print(ball.dx, ball.x)
+
+    cv2.circle(img, (ball.x, ball.y), 5, (0, 0, 255), 1)
 
     cv2.imshow(window_name, img)
 
