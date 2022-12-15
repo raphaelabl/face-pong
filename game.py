@@ -1,9 +1,14 @@
 import cv2
 
+width = 1280
+height = 720
+
 face_cascade = cv2.CascadeClassifier(r'/home/raphael/Dev/Python/haarcascade_frontalface_default.xml')
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FPS, 60)
+cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(3, width)
+cap.set(4, height)
 
 window_name = "image"
 
@@ -18,14 +23,15 @@ class Vec:
         self.dx = dx
         self.dy = dy
 
-width = 640
-height = 480
+
+
+paddleX = width - 230
 
 ball = Vec(100, 100, 10, 10)
-ball.x = width/2
-ball.y = height/2
-ball.dy = 10
-ball.dx = -10
+ball.x = int(width/2)
+ball.y = int(height/2)
+ball.dy = 20
+ball.dx = -20
 
 
 while True:
@@ -62,19 +68,19 @@ while True:
     faceCords.sort(key=lambda c: c.x)
 
     for index, vec in enumerate(faceCords[0:2], start=0):
-        cv2.rectangle(img, (100 + (index * 400), vec.y), (100 + (index * 400) + 30, vec.y + 100), (300, 300, 0), 1)
-        delX = abs(ball.x - (100 + (index * 400) + (30 * (1 - index)))) * (ball.dx / 10)
+        cv2.rectangle(img, (100 + (index * paddleX), vec.y), (100 + (index * paddleX) + 30, vec.y + 100), (100, 100, 0), 1)
+        delX = abs(ball.x - (100 + (index * paddleX) + (30 * (1 - index)))) * (ball.dx / 10)
 
-        if ball.x == (100 + (index * 400) + ((1 - index) * 30)) and vec.y <= ball.y <= vec.y + 100:
+        if ball.x == (100 + (index * paddleX) + ((1 - index) * 30)) and vec.y <= ball.y <= vec.y + 100:
             print("bounce: ", ball.dx)
             ball.dx *= -1
-        elif (100 + (index * 400)) <= ball.x + ball.dx <= (
-                100 + (index * 400) + ((1 - index) * 30)) and vec.y <= ball.y + ball.dy <= vec.y + 100:
+        elif (100 + (index * paddleX)) <= ball.x + ball.dx <= (
+                100 + (index * paddleX) + ((1 - index) * 30)) and vec.y <= ball.y + ball.dy <= vec.y + 100:
             ball.y = int(delX + ball.y)
-            ball.x = 100 +(index * 400)+ ((1 - index) * 30) - ball.dx
+            ball.x = 100 +(index * paddleX) + ((1 - index) * 30) - ball.dx
             print(ball.dx, ball.x)
 
-    cv2.circle(img, (ball.x, ball.y), 5, (0, 0, 255), 1)
+    cv2.circle(img, (ball.x, ball.y), 9, (0, 0, 255), -1)
 
     cv2.imshow(window_name, img)
 
